@@ -33,7 +33,6 @@ func RegPage(c echo.Context) error {
         })
     }
 	// Проверка инфы с базы даннных 
-	
 	conn, err := pgx.Connect(context.Background(), connStr)
 	//conn, err := pgx.Connect(context.Background(), "postgres://postgres:Roflan_2006@postgres:5432/data") // надо будет закинуть в gitignore и защитить от SQL инъекций, хз
 	if err != nil{

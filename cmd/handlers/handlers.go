@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"Messanger/internal/websocket"
 	"Messanger/internal/database"
+	"Messanger/internal/mail"
 )
 
 type Template struct{
@@ -37,11 +38,13 @@ func HandleRequests(){
 	    "web/templates/header.html",
 		"web/templates/contacts_page.html",
 		"web/templates/channels_page.html",
+		"web/templates/checking_code.html",
 		"web/templates/side_bar.html",
 	    "web/templates/main_page.html",
 	    "web/templates/auth_page.html",
 	    "web/templates/home_page.html",
 		"web/templates/about_page.html",
+		"web/templates/reg_page2.html",
 		"web/templates/reg_page.html",
 	)
 	if err != nil {
@@ -55,14 +58,22 @@ func HandleRequests(){
 
 	e.GET("/main", mainPage)
 	e.GET("/home", homePage)
-	e.GET("/auth", showAuthPage)
-	e.POST("/auth/post", database.AuthPage)
 	e.GET("/channs", channelsPage)
 	e.GET("/about", aboutPage)
-	e.POST("/reg/post", database.RegPage)
-	e.GET("/reg", showRegPage)
 	e.GET("/chat", contactsPage)
 
+	e.GET("/auth", showAuthPage)
+	e.POST("/auth/post", database.AuthPage)
+
+	e.GET("/reg", showRegPage)
+	e.POST("/reg/post", database.RegPage)
+
+	e.GET("/reg2", showRegPage2)
+	e.POST("/reg2/post", mail.SendWithGomail)
+
+	e.POST("/checkingcode/post", mail.CheckCode)
+	e.GET("/checkingcode", showCheckCode)
+	
 	e.GET("/ws", func(c echo.Context) error {
 		websocket.HandleConnections(c.Response(), c.Request())
 		return nil
@@ -105,13 +116,25 @@ func contactsPage(c echo.Context) error{
 func showRegPage(c echo.Context) error{ 
 	return c.Render(http.StatusOK, "reg_page", map[string]interface{}{
         "Title": "Registration",
-        "Error": "", // пустая ошибка по приколу 
+        "Error": "", 
+    })
+}
+func showRegPage2(c echo.Context) error{
+	return c.Render(http.StatusOK, "reg_page2", map[string]interface{}{
+        "Title": "Registration",
+        "Error": "", 
+    })
+}
+func showCheckCode(c echo.Context) error{
+	return c.Render(http.StatusOK, "checking_code", map[string]interface{}{
+        "Title": "Registration",
+        "Error": "Wrong mail!", 
     })
 }
 // Функция, показывающая страницу авторизации
 func showAuthPage(c echo.Context) error { 
 	 return c.Render(http.StatusOK, "auth_page", map[string]interface{}{
         "Title": "Authorization",
-        "Error": "", // Пустой шаблон, хз зачем по приколу ахахахах
+        "Error": "", 
     })
 }
