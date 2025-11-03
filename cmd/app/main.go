@@ -8,10 +8,7 @@ import (
 )
 
 func main(){
-	err := godotenv.Load()
-	if err != nil{
-		log.Println("Can't connect to .env file!")
-	}
+	if err := godotenv.Load(); err != nil{log.Println("Can't connect to .env file!")}
 	database.InitDB() // Проверка на базу данных
 	handlers.HandleRequests() // Поддержка запросов
 }

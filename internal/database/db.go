@@ -27,7 +27,7 @@ func RegPage(c echo.Context) error {
 	getUsernameReg := c.FormValue("usernameReg")
 	getPasswordReg := c.FormValue("passwordReg")
 	if _, err := strconv.Atoi(getPasswordReg); err != nil {
-        return c.Render(http.StatusOK, "reg_page", map[string]interface{}{
+        return c.Render(http.StatusOK, "registration", map[string]interface{}{
             "Title": "Registration",
             "Error": "Password must contain only numbers",
         })
@@ -36,7 +36,7 @@ func RegPage(c echo.Context) error {
 	conn, err := pgx.Connect(context.Background(), connStr)
 	if err != nil{
 		log.Printf("Error: %v",err)
-		return c.Render(http.StatusOK, "auth_page", map[string]interface{}{
+		return c.Render(http.StatusOK, "authorization", map[string]interface{}{
 			"Title": "Authorization",
         	"Error": "Database connection error",
 		})
@@ -60,11 +60,11 @@ func RegPage(c echo.Context) error {
 		stringPassword := strconv.Itoa(password)
 		if getUsernameReg == username || getPasswordReg == stringPassword{
 			data := struct{Error string}{Error: "Password or login already exists"}
-			return c.Render(http.StatusOK, "reg_page", data)
+			return c.Render(http.StatusOK, "registration", data)
 		}
 	}// проверка инфы с таблиц базы данных
 	WriteSQL(getUsernameReg, getPasswordReg)
-	return c.Render(http.StatusOK, "reg_page", nil)
+	return c.Render(http.StatusOK, "registration", nil)
 }
 func AuthPage(c echo.Context) error{ 
 	if c.Request().Method != http.MethodPost {
@@ -83,7 +83,7 @@ func AuthPage(c echo.Context) error{
 	conn, err := pgx.Connect(context.Background(), connStr)
 	if err != nil{
 		log.Printf("Error: %v",err)
-		return c.Render(http.StatusOK, "auth_page", map[string]interface{}{
+		return c.Render(http.StatusOK, "authorization", map[string]interface{}{
 			"Title": "Authorization",
         	"Error": "Database connection error",
 		})
@@ -104,7 +104,7 @@ func AuthPage(c echo.Context) error{
 	for rows.Next(){
 		err := rows.Scan(&username, &password)
 		if err != nil{
-			return c.Render(http.StatusOK, "auth_page", map[string]interface{}{
+			return c.Render(http.StatusOK, "authorization", map[string]interface{}{
 				"Title": "Authorization",
         		"Error": "Wrong password or login",
 			})
@@ -114,7 +114,7 @@ func AuthPage(c echo.Context) error{
 			return c.Redirect(http.StatusFound, "/home")
 		}
 	}
-	return c.Render(http.StatusOK, "auth_page", map[string]interface{}{
+	return c.Render(http.StatusOK, "authorization", map[string]interface{}{
 		"Title": "Authorization",
 		"Error": "Wrong password or login",
 	})

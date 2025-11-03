@@ -46,7 +46,7 @@ func SendWithGomail(c echo.Context) error {
 		return err
 	}
 
-	return c.Render(http.StatusOK, "checking_code", map[string]interface{}{
+	return c.Render(http.StatusOK, "sendingcode", map[string]interface{}{
 		"Title": "Registration",
 		"Error": "",
 	})
@@ -57,7 +57,7 @@ func CheckCode(c echo.Context) error{
 	session := c.Get("session").(*sessions.Session)
 	storeCode, ok := session.Values["ver_code"].(string)
 	if !ok{
-		return c.Render(http.StatusOK, "checking_code", map[string]interface{}{
+		return c.Render(http.StatusOK, "sendingcode", map[string]interface{}{
 			"Title": "Registration",
 			"Error": "Session is over!",
 		})
@@ -65,12 +65,12 @@ func CheckCode(c echo.Context) error{
 	if storeCode == getCode{
 		delete(session.Values, "ver_code") // После успешной верификации кода, сессия удаляется, чтобы не занимать память
 		session.Save(c.Request(), c.Response()) // Сессия сохраняется 
-		return c.Render(http.StatusOK, "reg_page", map[string]interface{}{
+		return c.Render(http.StatusOK, "registration", map[string]interface{}{
 			"Title": "Registration",
 			"Error": "",
 		})
 	}
-	return c.Render(http.StatusOK, "reg_page", map[string]interface{}{
+	return c.Render(http.StatusOK, "authorization", map[string]interface{}{
 		"Title": "Registration",
 		"Error": "Wrong Code!",
 	})

@@ -53,15 +53,15 @@ func HandleRequests(){
 	templates, err := template.ParseFiles( // Обработка HTML-файлов (ну тупо страниц)
 		"web/templates/footer.html",
 	    "web/templates/header.html",
-		"web/templates/contacts_page.html",
-		"web/templates/channels_page.html",
-		"web/templates/checking_code.html",
-		"web/templates/side_bar.html",
-	    "web/templates/auth_page.html",
-	    "web/templates/home_page.html",
-		"web/templates/about_page.html",
-		"web/templates/reg_page2.html",
-		"web/templates/reg_page.html",
+		"web/templates/chat.html",
+		"web/templates/contacts.html",
+		"web/templates/sendingcode.html",
+		"web/templates/sidebar.html",
+	    "web/templates/authorization.html",
+	    "web/templates/home.html",
+		"web/templates/about.html",
+		"web/templates/entermail.html",
+		"web/templates/registration.html",
 	); 
 	if err != nil {log.Fatalf("Ошибка загрузки шаблонов:%v", err)}
 	
@@ -72,9 +72,9 @@ func HandleRequests(){
 	})
 
 	e.GET("/home", homePage)
-	e.GET("/channs", channelsPage)
+	e.GET("/contacts", contactsPage)
 	e.GET("/about", aboutPage)
-	e.GET("/chat", contactsPage)
+	e.GET("/chat", chatPage)
 
 	e.GET("/auth", showAuthPage)
 	e.POST("/auth/post", database.AuthPage)
@@ -82,8 +82,8 @@ func HandleRequests(){
 	e.GET("/reg", showRegPage)
 	e.POST("/reg/post", database.RegPage)
 
-	e.GET("/reg2", showRegPage2)
-	e.POST("/reg2/post", mail.SendWithGomail)
+	e.GET("/entermail", showEnterMail)
+	e.POST("/entermail/post", mail.SendWithGomail)
 
 	e.GET("/checkingcode", showCheckCode)
 	e.POST("/checkingcode/post", mail.CheckCode)
@@ -99,49 +99,49 @@ func HandleRequests(){
 
 // Домашняя страница
 func homePage(c echo.Context) error{ 
-	return c.Render(http.StatusOK, "home_page", map[string]interface{}{
+	return c.Render(http.StatusOK, "home", map[string]interface{}{
 		"Title": "Home page",
 	})
 }
 // Страница о самом Месседжере
 func aboutPage(c echo.Context) error{ 
-	return c.Render(http.StatusOK, "about_page", map[string]interface{}{
+	return c.Render(http.StatusOK, "about", map[string]interface{}{
 		"Title": "About",
 	})
 }
-func channelsPage(c echo.Context) error{
-	return c.Render(http.StatusOK, "channels_page", map[string]interface{}{
+func contactsPage(c echo.Context) error{
+	return c.Render(http.StatusOK, "contacts", map[string]interface{}{
 		"Title": "Contacts",
 	})
 }
 // Страница чата
-func contactsPage(c echo.Context) error{ 
-	return c.Render(http.StatusOK, "contacts_page", map[string]interface{}{
+func chatPage(c echo.Context) error{ 
+	return c.Render(http.StatusOK, "chat", map[string]interface{}{
 		"Title": "Chat",
 	})
 }
 // Функция, показывающая страницу регистрации
 func showRegPage(c echo.Context) error{ 
-	return c.Render(http.StatusOK, "reg_page", map[string]interface{}{
+	return c.Render(http.StatusOK, "registration", map[string]interface{}{
         "Title": "Registration",
         "Error": "", 
     })
 }
-func showRegPage2(c echo.Context) error{
-	return c.Render(http.StatusOK, "reg_page2", map[string]interface{}{
+func showEnterMail(c echo.Context) error{
+	return c.Render(http.StatusOK, "entermail", map[string]interface{}{
         "Title": "Registration",
         "Error": "", 
     })
 }
 func showCheckCode(c echo.Context) error{
-	return c.Render(http.StatusOK, "checking_code", map[string]interface{}{
+	return c.Render(http.StatusOK, "sendingcode", map[string]interface{}{
         "Title": "Registration",
         "Error": "Wrong mail!", 
     })
 }
 // Функция, показывающая страницу авторизации
 func showAuthPage(c echo.Context) error { 
-	 return c.Render(http.StatusOK, "auth_page", map[string]interface{}{
+	 return c.Render(http.StatusOK, "authorization", map[string]interface{}{
         "Title": "Authorization",
         "Error": "", 
     })

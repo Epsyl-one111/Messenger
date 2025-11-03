@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+
+    
     <title>Messenger</title>
     <link rel="stylesheet" href="/web/static/styles.css">
 </head>
@@ -15,7 +17,7 @@
         <div class="header-cols">
             <div class="header-col-left">
                 <div class="logo-container">
-                    <img src="/web/static/photos/channels4_profile.svg" class="header-img" alt="Genesis Logo" >
+                    <img src="/web/static/photos/channels4_profile.svg" class="header-img" alt="Genesis Logo" height="30px">
                     <div class="logo-backup"></div>
                 </div>
             </div>
@@ -30,13 +32,19 @@
 </header>
 
 <style>
-    .body{
+    body {
+        margin: 0;
+        padding: 0;
         overflow-x: hidden;
+        width: 100%;
+    }
+    * {
+        box-sizing: border-box;
     }
     .header-main {
-        background: linear-gradient(180deg, rgb(0, 0, 0), rgb(35, 35, 35));
-        padding: 15px 20px;
-        box-shadow: 0 0px 0px rgba(0,0,0,0);
+        background: linear-gradient(180deg, rgb(10, 10, 10), rgb(35, 35, 35));
+        padding: 0px 20px;
+        /* box-shadow: 0 0px 0px rgba(0,0,0,0); */
         position: relative;
         overflow-x: hidden;
     }
@@ -51,24 +59,26 @@
         gap: 0px;
         flex-wrap: wrap; 
         margin-right: 40px;
+        padding: 10px 0;
     }
     .header-col-left {
         flex-shrink: 0;
         margin-left: 150px;
-        padding-top: 30px;
+        /* padding-top: 30px; */
     }
     .header-col-right {
         flex: 1;
         text-align: center;
         margin-right: 100px;
-        margin-top: 70px;
+        /* margin-top: 70px; */
+        margin-top: 10px;
     }
     .logo-container {
         position: relative;
         width: 80px;
         height: 80px;
         margin-left: 150px;
-        margin-top: 30px;
+        margin-top: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -78,7 +88,7 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
-        border-radius: 50%;
+        border-radius: 30%;
         text-align: center;
         border: 3px solid #000000;
         box-shadow: 0 0 9px rgba(250, 250, 250);
@@ -89,8 +99,8 @@
         box-shadow: 0 0 20px rgba(255,255,255,0.4);
     }
     .logo-placeholder {
-        width: 80px;
-        height: 80px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         background: linear-gradient(180deg, #000000, #4a4a4a);
         display: flex;
@@ -103,7 +113,7 @@
     }
     .text-inside-header {
         color: white;
-        font-size: 50px;
+        font-size: 36px;
         margin-right: 50px;
         margin: 0;
         text-shadow: 0 0 10px rgba(255,255,255,0.3);
@@ -112,16 +122,16 @@
     }
     .header-subtitle {
         color: #ccc;
-        font-size: 30px;
+        font-size: 20px;
         margin: 5px 0 0 0;
         text-shadow: 0 0 5px rgba(255,255,255,0.2);
         font-weight: 300;
     }
     .header-line {
-        height: 5px;
+        height: 3px;
         background: linear-gradient(90deg, transparent, #ffffff, transparent);
-        box-shadow: 0px 1px white;
-        margin-top: 150px;
+        box-shadow: 0px 0px white;
+        margin-top: 10px;
         width: 100%;
     }
     /* Планшеты */
@@ -155,7 +165,6 @@
             }
             .header-cols {
                 flex-direction: column; 
-                gap: 40px;
                 margin-right: 0 !important;
                 margin-right: 0; 
             }
@@ -163,13 +172,11 @@
                 padding-top: 60px; 
                 order: 1; 
                 margin-left: 0 !important; 
-                padding-right: 220px !important;
             }
             .header-col-right {
-                margin-right: 80px; 
+                margin-right: 0px; 
                 margin-top: 80px; 
                 order: 2; 
-                /* margin-right: 0 !important; */
             }
             .logo-container {
                 width: 60px; 
@@ -177,15 +184,15 @@
                 margin-left: 0; 
                 margin-top: 30px;
                 margin: 0 auto;  
-                
             }
             .text-inside-header {
                 font-size: 30px; 
                 margin-right: 0; 
                 letter-spacing: 0.6px;
                 font-family: Arial, Helvetica, sans-serif;
+
             .header-subtitle {
-                font-size: 30px; /* Уменьшил размер шрифта */
+                font-size: 30px; 
                 font-family: 'Times New Roman', Times, serif;
             }
             .header-line {
@@ -206,8 +213,8 @@
             font-size: 0.8rem;
         }
         .logo-container {
-            width: 50px;
-            height: 50px;
+            width: 90px;
+            height: 90px;
         }
         .logo-placeholder {
             width: 50px;
@@ -246,7 +253,7 @@
         to { opacity: 1; transform: translateY(0); }
     }
     .header-main {
-        animation: fadeIn 0.6s ease-out;
+        animation: fadeIn 0.7s ease-out;
     }
 </style>
 
@@ -278,6 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
 });
+
 </script>
 
 {{ end }}

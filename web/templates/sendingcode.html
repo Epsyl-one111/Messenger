@@ -1,4 +1,4 @@
-{{ define "reg_page2" }}
+{{ define "sendingcode" }}
 {{ template "header" }}
 
 <link rel="stylesheet" href="/web/static/styles.css">
@@ -7,26 +7,25 @@
     <div class="reg-container">
         <div class="reg-card">
             <div class="reg-header">
-                <h1 class="reg-title">Send code to your gmail</h1>
+                <h1 class="reg-title">Checking the code</h1>
                 <p class="reg-subtitle">Join Genesis Messenger community</p>
             </div>
-
             {{ if .Error }}
             <div class="error-message">
                 <span class="error-icon">⚠️</span>
                 {{ .Error }}
             </div>
             {{ end }}
-            <form action="/reg2/post" method="post" class="reg-form">
+            <form action="/checkingcode/post" method="post" class="reg-form">
                 <div class="form-group">
-                    <label for="Mail" class="form-label">Gmail:</label>
-                    <input type="text" id="Mail" name="Mail" class="form-input" required 
-                           placeholder="Enter your gmail" minlength="3" maxlength="50">
+                    <label for="GmailCode" class="form-label">Code</label>
+                    <input type="text" id="GmailCode" name="GmailCode" class="form-input" required 
+                           placeholder="Enter your code" minlength="3" maxlength="50">
                     <span class="input-icon">👤</span>
                     <div class="input-hint">3-50 characters</div>
                 </div>
                 <button type="submit" class="reg-button primary-button">
-                    Send Code to Gmail?
+                    Enter
                 </button>   
             </form>
             <div class="divider">

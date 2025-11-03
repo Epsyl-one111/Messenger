@@ -1,4 +1,4 @@
-{{ define "checking_code" }}
+{{ define "registration" }}
 {{ template "header" }}
 
 <link rel="stylesheet" href="/web/static/styles.css">
@@ -7,32 +7,46 @@
     <div class="reg-container">
         <div class="reg-card">
             <div class="reg-header">
-                <h1 class="reg-title">Checking the code</h1>
+                <h1 class="reg-title">Create Account</h1>
                 <p class="reg-subtitle">Join Genesis Messenger community</p>
             </div>
+
             {{ if .Error }}
             <div class="error-message">
                 <span class="error-icon">⚠️</span>
                 {{ .Error }}
             </div>
             {{ end }}
-            <form action="/checkingcode/post" method="post" class="reg-form">
+
+            <form action="/reg/post" method="post" class="reg-form">
                 <div class="form-group">
-                    <label for="GmailCode" class="form-label">Code</label>
-                    <input type="text" id="GmailCode" name="GmailCode" class="form-input" required 
-                           placeholder="Enter your code" minlength="3" maxlength="50">
+                    <label for="usernameReg" class="form-label">Username:</label>
+                    <input type="text" id="usernameReg" name="usernameReg" class="form-input" required 
+                           placeholder="Choose your username" minlength="3" maxlength="50">
                     <span class="input-icon">👤</span>
                     <div class="input-hint">3-50 characters</div>
                 </div>
+
+                <div class="form-group">
+                    <label for="passwordReg" class="form-label">Password:</label>
+                    <input type="password" id="passwordReg" name="passwordReg" class="form-input" required 
+                           placeholder="Create strong password" minlength="6">
+                    <span class="input-icon">🔒</span>
+                    <div class="input-hint">Minimum 6 characters</div>
+                </div> 
+    
                 <button type="submit" class="reg-button primary-button">
-                    Enter
+                    <span class="button-icon">🚀</span>
+                    Create Account
                 </button>   
             </form>
+
             <div class="divider">
                 <span class="divider-line"></span>
                 <span class="divider-text">or</span>
                 <span class="divider-line"></span>
             </div>
+
             <form action="/auth" method="get" class="back-form">
                 <p class="back-text">Already have an account?</p>
                 <button type="submit" class="reg-button secondary-button">
@@ -40,6 +54,7 @@
                     Back to Login
                 </button>
             </form>
+
             <div class="reg-footer">
                 <p class="footer-text">Secure registration with WebSocket technology</p>
             </div>
