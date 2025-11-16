@@ -80,7 +80,10 @@ func SendHistory(ws *websocket.Conn){
 	if err != nil{
 		log.Printf("%v", err)
 	}
-	for i := len(messages); i >= 0; i--{
+	if len(messages) == 0 {
+		log.Println("История сообщений пуста")
+	}
+	for i := len(messages)-1; i >= 0; i--{
 		var msg Message
 		if err := json.Unmarshal([]byte(messages[i]), &msg); err != nil{
 			log.Printf("%v", err)
@@ -98,7 +101,7 @@ func GetHistory(c echo.Context){
 		log.Printf("%v", err)
 	}  
 	var res []Message
-	for i := len(messages); i >=0; i--{
+	for i := len(messages)-1; i >=0; i--{
 		var msg Message
 		if err := json.Unmarshal([]byte(messages[i]), &msg); err != nil{
 			log.Printf("Ошибка при десериаизации данных: %v", err)
@@ -112,11 +115,11 @@ func GetHistory(c echo.Context){
 }
 
 
-func HandleConnections(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
+func HandleConnections(c echo.Context) error {
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.Printf("WebSocket upgrade error: %v", err)
-		return
+		return nil
 	}
 	defer ws.Close()
 
@@ -152,6 +155,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		SaveMessages(msg)
 		broadcast <- msg // Отправляем в канал широковещания
 	}
+	return nil
 }
 
 func PingClient(client *Client){
@@ -222,7 +226,7 @@ func (c *Client) WritePump() {
 // Обработчик широковещательных сообщений
 func HandleMessages() {  
 	for {
-		msg := <-broadcast
+		msg := <- broadcast
 		clientsMux.Lock()
 		for client := range clients {
 			select {

@@ -96,7 +96,7 @@ func HandleRequests(){
 	e.POST("/checkingcode/post", mail.CheckCode)
 	
 	e.GET("/ws", func(c echo.Context) error {
-		websocket.HandleConnections(c.Response(), c.Request())
+		websocket.HandleConnections(c)
 		return nil
 	})
 
