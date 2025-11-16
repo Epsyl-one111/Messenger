@@ -10,6 +10,7 @@ import (
 	"Messanger/internal/database"
 	"Messanger/internal/mail"
 	"Messanger/internal/websocket"
+	"Messanger/web/handlers"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo/v4"
@@ -37,7 +38,7 @@ func MiddlewareSessions(next echo.HandlerFunc) echo.HandlerFunc{ // Создае
 	}	
 }
 
-func HandleRequests(){
+func HandleRequests(){ 
 	e := echo.New()
 	
 	e.Use(MiddlewareSessions)
@@ -47,10 +48,10 @@ func HandleRequests(){
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete}, // CORS для разрешения с браузера 
 	}))
-	
-	e.Static("/web/static", "web/static") // Создаем для статических файлов CSS
-
-	templates, err := template.ParseFiles( // Обработка HTML-файлов (ну тупо страниц)
+	// Создаем для статических файлов CSS
+	e.Static("/web/static", "web/static") 
+	// Обработка HTML-файлов (страниц)
+	templates, err := template.ParseFiles( 
 		"web/templates/footer.html",
 	    "web/templates/header.html",
 		"web/templates/chat.html",
@@ -64,85 +65,42 @@ func HandleRequests(){
 		"web/templates/registration.html",
 	); 
 	if err != nil {log.Fatalf("Ошибка загрузки шаблонов:%v", err)}
-	
-	e.Renderer = &Template{templates: templates} // Рендер шаблонов 
+	// Рендер шаблонов 
+	e.Renderer = &Template{templates: templates} 
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusPermanentRedirect, "/auth")
 	})
 
-	e.GET("/home", homePage)
-	e.GET("/contacts", contactsPage)
-	e.GET("/about", aboutPage)
-	e.GET("/chat", chatPage)
 
-	e.GET("/auth", showAuthPage)
+	e.GET("/api/history", func(c echo.Context) error{
+		websocket.GetHistory(c)
+		return nil
+	})
+
+	e.GET("/home", handlers.HomePage)
+	e.GET("/contacts", handlers.ContactsPage)
+	e.GET("/about", handlers.AboutPage)
+	e.GET("/chat", handlers.ChatPage)
+
+	e.GET("/auth", handlers.ShowAuthPage)
 	e.POST("/auth/post", database.AuthPage)
 
-	e.GET("/reg", showRegPage)
+	e.GET("/reg", handlers.ShowRegPage)
 	e.POST("/reg/post", database.RegPage)
 
-	e.GET("/entermail", showEnterMail)
+	e.GET("/entermail", handlers.ShowEnterMail)
 	e.POST("/entermail/post", mail.SendWithGomail)
 
-	e.GET("/checkingcode", showCheckCode)
+	e.GET("/checkingcode", handlers.ShowCheckCode)
 	e.POST("/checkingcode/post", mail.CheckCode)
 	
 	e.GET("/ws", func(c echo.Context) error {
 		websocket.HandleConnections(c.Response(), c.Request())
 		return nil
 	})
+
 	go websocket.HandleMessages()
 	
 	e.Logger.Fatal(e.Start("0.0.0.0:8080")) // Хост для показа всем интерфейсам
-}
-
-// Домашняя страница
-func homePage(c echo.Context) error{ 
-	return c.Render(http.StatusOK, "home", map[string]interface{}{
-		"Title": "Home page",
-	})
-}
-// Страница о самом Месседжере
-func aboutPage(c echo.Context) error{ 
-	return c.Render(http.StatusOK, "about", map[string]interface{}{
-		"Title": "About",
-	})
-}
-func contactsPage(c echo.Context) error{
-	return c.Render(http.StatusOK, "contacts", map[string]interface{}{
-		"Title": "Contacts",
-	})
-}
-// Страница чата
-func chatPage(c echo.Context) error{ 
-	return c.Render(http.StatusOK, "chat", map[string]interface{}{
-		"Title": "Chat",
-	})
-}
-// Функция, показывающая страницу регистрации
-func showRegPage(c echo.Context) error{ 
-	return c.Render(http.StatusOK, "registration", map[string]interface{}{
-        "Title": "Registration",
-        "Error": "", 
-    })
-}
-func showEnterMail(c echo.Context) error{
-	return c.Render(http.StatusOK, "entermail", map[string]interface{}{
-        "Title": "Registration",
-        "Error": "", 
-    })
-}
-func showCheckCode(c echo.Context) error{
-	return c.Render(http.StatusOK, "sendingcode", map[string]interface{}{
-        "Title": "Registration",
-        "Error": "Wrong mail!", 
-    })
-}
-// Функция, показывающая страницу авторизации
-func showAuthPage(c echo.Context) error { 
-	 return c.Render(http.StatusOK, "authorization", map[string]interface{}{
-        "Title": "Authorization",
-        "Error": "", 
-    })
 }

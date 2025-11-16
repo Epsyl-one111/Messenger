@@ -12,7 +12,31 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/labstack/echo/v4"
 )
-
+// Проверка на наличие базы данных, если ее нет, он ее создает
+func InitDB(){
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", 
+		os.Getenv("USER"),
+		os.Getenv("PASSWORD"),
+		os.Getenv("HOST"),
+		os.Getenv("PORT"),
+		os.Getenv("DB"),
+	)
+	conn, err := pgx.Connect(context.Background(), connStr)
+	if err != nil{
+		log.Fatalf("%v",err)
+	}
+	_, err = conn.Exec(context.Background(), `
+        CREATE TABLE IF NOT EXISTS data_user (
+            username VARCHAR(50) UNIQUE NOT NULL,
+            password INT NOT NULL
+        )
+    `)
+	if err != nil{
+		time.Sleep(2 * time.Second)
+		InitDB() // Рекурсия на проверку 
+		return
+	}
+}
 func RegPage(c echo.Context) error { 	
 	if c.Request().Method != http.MethodPost{
 		return c.Redirect(http.StatusFound, "/reg")
@@ -119,31 +143,7 @@ func AuthPage(c echo.Context) error{
 		"Error": "Wrong password or login",
 	})
 }
-// Проверка на наличие базы данных, если ее нет, он ее создает
-func InitDB(){
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", 
-		os.Getenv("USER"),
-		os.Getenv("PASSWORD"),
-		os.Getenv("HOST"),
-		os.Getenv("PORT"),
-		os.Getenv("DB"),
-	)
-	conn, err := pgx.Connect(context.Background(), connStr)
-	if err != nil{
-		log.Fatalf("%v",err)
-	}
-	_, err = conn.Exec(context.Background(), `
-        CREATE TABLE IF NOT EXISTS data_user (
-            username VARCHAR(50) UNIQUE NOT NULL,
-            password INT NOT NULL
-        )
-    `)
-	if err != nil{
-		time.Sleep(2 * time.Second)
-		InitDB() // Рекурсия на проверку 
-		return
-	}
-}
+
 // Запись информации о клиенте в базу данных
 func WriteSQL(username, password string) {
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", 
@@ -162,5 +162,6 @@ func WriteSQL(username, password string) {
 	_, err = conn.Exec(context.Background(), "INSERT INTO data_user (username, password) VALUES ($1, $2)", username, password) 
 	if err != nil{
 		log.Fatal(err)
+		// log.Printf("Error:", err)
 	}
 }

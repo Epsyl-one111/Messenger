@@ -1,20 +1,28 @@
 package websocket
 
 import (
-	"time"
-	"sync"
-	"net/http"
+	"context"
+	_"fmt"
+	"encoding/json"
 	"log"
+	"net/http"
+	"os"
+	"sync"
+	"time"
+
 	"github.com/gorilla/websocket"
+	"github.com/labstack/echo/v4"
+	"github.com/redis/go-redis/v9"
 )
 
-type Message struct{ // Определение структуры сообщения
+// Определение структуры сообщения
+type Message struct{ 
 	Username string `json:"username"`
 	Content string 	`json:"content"`
 	Time string 	`json:"time"`
 }
-
-type Client struct { // Определяем структуру клиента 
+// Определяем структуру клиента 
+type Client struct { 
 	conn *websocket.Conn
 	send chan Message
 	stopPing chan bool
@@ -30,7 +38,79 @@ var (
 	clients    = make(map[*Client]bool)
 	clientsMux = &sync.Mutex{}
 	broadcast  = make(chan Message, 100) // Общий канал 
+
+	redisClient *redis.Client
+	maxMessages int64 = 250
 )
+// Инициальзация Redis через переменные окружения 
+func init(){
+	// address := fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT"))
+	password := os.Getenv("REDIS_PASSWORD")
+	redisClient = redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+		Password: password,
+		DB: 0,
+	})
+	_, err := redisClient.Ping(context.Background()).Result()
+	if err != nil{
+		log.Printf("Невозможно подключиться к Redis!%v", err)
+	}else{
+		log.Println("Победа! Подключение к Redis!")
+	}
+}
+// Сохранение сообщений в Redis
+func SaveMessages(msg Message){
+	// Сначала преобразуем сообщение в JSON
+	msgJSON, err := json.Marshal(msg) 
+	if err != nil{
+		log.Printf("Невозможно переписать в JSON сообщение: %v", err)
+	}
+	// Затем закидываем сериализованнное сообщение в Redis
+	if err := redisClient.LPush(context.Background(), os.Getenv("REDIS_KEY"), msgJSON).Err(); err != nil{
+		log.Printf("Невозможно записать данные в Redis :%v", err)
+	}
+	// Делим сообщение 
+	if err := redisClient.LTrim(context.Background(), os.Getenv("REDIS_KEY"), 0, maxMessages-1).Err(); err != nil{
+		log.Printf("Невозможно разделить сообщения: %v", err)
+	}
+}
+
+func SendHistory(ws *websocket.Conn){
+	messages, err := redisClient.LRange(context.Background(), os.Getenv("REDIS_KEY"), 0, maxMessages-1).Result()
+	if err != nil{
+		log.Printf("%v", err)
+	}
+	for i := len(messages); i >= 0; i--{
+		var msg Message
+		if err := json.Unmarshal([]byte(messages[i]), &msg); err != nil{
+			log.Printf("%v", err)
+		}
+		if err := ws.WriteJSON(msg); err != nil{
+			log.Printf("%v", err)
+		}
+	}
+}
+
+// Функция, сохраняющая историю чата
+func GetHistory(c echo.Context){
+	messages, err := redisClient.LRange(context.Background(), os.Getenv("REDIS_KEY"), 0, maxMessages-1).Result()
+	if err != nil{
+		log.Printf("%v", err)
+	}  
+	var res []Message
+	for i := len(messages); i >=0; i--{
+		var msg Message
+		if err := json.Unmarshal([]byte(messages[i]), &msg); err != nil{
+			log.Printf("Ошибка при десериаизации данных: %v", err)
+			continue
+		}
+		res = append(res, msg)
+	} 
+
+	c.Response().Header().Set("Content-Type", "application/json")
+	json.NewEncoder(c.Response()).Encode(res)
+}
+
 
 func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -54,8 +134,10 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	
 	RegisterClient(client) // Регистрируем клиента
 	defer UnregisterClient(client) // Удаляем клиента при отключении
+	SendHistory(ws)
 
-	for { // Читаем сообщения от клиента
+// Читаем сообщения от клиента
+	for { 
 		var msg Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
@@ -67,6 +149,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		msg.Time = time.Now().Format("15:04") // Добавляем время к сообщению
 		log.Printf("Получено сообщение: %s", msg.Content)
 
+		SaveMessages(msg)
 		broadcast <- msg // Отправляем в канал широковещания
 	}
 }
@@ -74,8 +157,8 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 func PingClient(client *Client){
 	ticker := time.NewTicker(30 * time.Second) 
     defer ticker.Stop()
-    
-    for { // бесконечный цикл
+// бесконечный цикл
+    for { 
         select {
         case <-ticker.C:
             client.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
