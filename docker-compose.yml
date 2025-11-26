@@ -20,8 +20,25 @@ services:
     restart: unless-stopped
     networks:
       - internal
+  cloudpub:
+    image: cloudpub/cloudpub:latest
+    container_name: cloudpub
+    environment:
+      - TOKEN=r__4lN1FmMTBoGP3-Y7jFBJw23Gat-71I7jKXvcAnfk
+      - HTTP=0.0.0.0
+      - CNAME=gen.cloudpub.ru
+    ports:
+      - "80:8080"
+    command: run
+    depends_on:
+      - messenger
+      - redis
+      - postgres
+    restart: unless-stopped
+    volumes:
+      - cloudpub-config:/home/cloudpub
   postgres:
-      image: postgres:15
+      image: postgres:15 
       container_name: postgres
       environment:
         - POSTGRES_DB=data
@@ -58,5 +75,6 @@ services:
         - internal
 
 volumes:
+  cloudpub-config:
   postgres_data:
   redis_data:
