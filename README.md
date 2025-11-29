@@ -1,12 +1,12 @@
 # О самом проекте
-Данный проект представляет собой мессенджер с общим чатом, авторизацией и регистрацией через почту, написанный на языке программирования Go. В этом проекте использовались такие технологиии как базы данных SQL и NoSQL, а именно Redis, PostgreSQL, WebSocket, работа с фреймвроком Echo, контейнеризация Docker, а также управление версиями с помощью Git. 
+Данный проект представляет собой мессенджер с общим чатом, авторизацией и регистрацией через почту, написанный на языке программирования Go. В этом проекте использовались такие технологиии как базы данных SQL и NoSQL(Redis, PostgreSQL), WebSocket, работа с фреймвроком Echo, контейнеризация Docker, а также управление версиями с помощью Git. 
 
-![Screenshot](https://github.com/BiFroZZy/Messenger/blob/main/2025-11-29_23-07-54.png)
-![Screenshot](https://github.com/BiFroZZy/Messenger/blob/main/2025-11-29_23-11-31.png)
+![Screenshot](https://github.com/BiFroZZy/Messenger/blob/main/web/static/photos/2025-11-29_23-07-54.png)
+![Screenshot](https://github.com/BiFroZZy/Messenger/blob/main/web/static/photos/2025-11-29_23-11-31.png)
 
 # Как установить?
     1) Клонируйте репозиторий:
-        git clone https://github.com/Epsyl-one111/Messenger.git
+        git clone https://github.com/BiFroZZy/Messenger
         
     2) Установить библиотеки: 
         go get "github.com/go-gomail/gomail"
@@ -30,7 +30,7 @@
         docker-compose up -d 
     Если захотите остановить, то напишите команду:
         docker-compose down 
-![Screenshot](https://github.com/BiFroZZy/Messenger/blob/main/2025-11-29_23-14-52.png)
+![Screenshot](https://github.com/BiFroZZy/Messenger/blob/main/web/static/photos/2025-11-29_23-14-52.png)
 # Структура проекта
     - cmd\app\main.go - главный запускаемый файл
     - cmd\handlers\handlers.go - хэндлеры рутов страниц, middleware и обьявление хоста
