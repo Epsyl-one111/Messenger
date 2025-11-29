@@ -29,7 +29,7 @@
         docker-compose down 
 
 # Структура проекта
-    - cmd\app\main.go - 
+    - cmd\app\main.go - главный запускаемый файл
     - cmd\handlers\handlers.go - хэндлеры рутов страниц, middleware и обьявление хоста
 
     - internal\database\db.go - работа с базой данных
