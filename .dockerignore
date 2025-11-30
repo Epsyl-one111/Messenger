@@ -1,3 +1,8 @@
 .env
 .gitignore
+.dockerignore
+docker-compose*
+Dockerfile*
+vendor/
+.vscode/
 README.md

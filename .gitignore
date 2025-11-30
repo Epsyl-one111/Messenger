@@ -1,2 +1,4 @@
 .env
-init.sql
+.gitignore
+.vscode/
+vendor/
