@@ -72,7 +72,6 @@ func HandleRequests(){
 		return c.Redirect(http.StatusPermanentRedirect, "/auth")
 	})
 
-
 	e.GET("/api/history", func(c echo.Context) error{
 		websocket.GetHistory(c)
 		return nil
