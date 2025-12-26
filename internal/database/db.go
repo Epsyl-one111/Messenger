@@ -9,15 +9,25 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/labstack/echo/v4"
 )
-// Проверка на наличие базы данных, если ее нет, он ее создает
-func InitDB(){
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", 
+var (
+	connStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", 
 		os.Getenv("POST_USER"),
 		os.Getenv("POST_PASSWORD"),
 		os.Getenv("POST_HOST"),
 		os.Getenv("POST_PORT"),
 		os.Getenv("POST_DB"),
 	)
+	person Person
+)
+
+type Person struct{
+	Username string
+	Password string
+	Email string
+}
+
+// Проверка на наличие базы данных, если ее нет, он ее создает
+func InitDB(){
 	conn, err := pgx.Connect(context.Background(), connStr)
 	if err != nil{
 		log.Fatalf("%v",err)
@@ -39,13 +49,6 @@ func RegPage(c echo.Context) error {
 	if c.Request().Method != http.MethodPost{
 		return c.Redirect(http.StatusFound, "/reg")
 	}
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", // Получаем переменные из среды окружения 
-		os.Getenv("POST_USER"),
-		os.Getenv("POST_PASSWORD"),
-		os.Getenv("POST_HOST"),
-		os.Getenv("POST_PORT"),
-		os.Getenv("POST_DB"),
-	)
 	getUsernameReg := c.FormValue("usernameReg")
 	getPasswordReg := c.FormValue("passwordReg")
 	// Проверка инфы с базы даннных 
@@ -61,10 +64,10 @@ func RegPage(c echo.Context) error {
 	rows, err := conn.Query(context.Background(), "SELECT username, password FROM data_user")
 	if err != nil{log.Fatal(err)}
 	defer rows.Close()
-	var username, password string
+
 	for rows.Next(){
-		if err := rows.Scan(&username, &password); err != nil{log.Fatal(err)}
-		if getUsernameReg == username || getPasswordReg == password{
+		if err := rows.Scan(&person.Username, &person.Password); err != nil{log.Fatal(err)}
+		if getUsernameReg == person.Username || getPasswordReg == person.Password{
 			data := struct{Error string}{Error: "Password or login already exists"}
 			return c.Render(http.StatusOK, "registration", data)
 		}
@@ -76,13 +79,6 @@ func AuthPage(c echo.Context) error{
 	if c.Request().Method != http.MethodPost {
         return c.Redirect(http.StatusFound, "/auth")
     }
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", 
-		os.Getenv("POST_USER"),
-		os.Getenv("POST_PASSWORD"),
-		os.Getenv("POST_HOST"),
-		os.Getenv("POST_PORT"),
-		os.Getenv("POST_DB"),
-	)
 	getUsernameAuth := c.FormValue("username")
 	getPasswordAuth := c.FormValue("password")
 	conn, err := pgx.Connect(context.Background(), connStr)
@@ -99,15 +95,14 @@ func AuthPage(c echo.Context) error{
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	
-	var username, password string
+
 	for rows.Next(){
-		if err := rows.Scan(&username, &password); err != nil{return c.Render(http.StatusOK, "authorization", map[string]interface{}{
+		if err := rows.Scan(&person.Username, &person.Password); err != nil{return c.Render(http.StatusOK, "authorization", map[string]interface{}{
 				"Title": "Authorization",
         		"Error": "Wrong password or login",
 			})
 		}
-		if getUsernameAuth == username && getPasswordAuth == password{
+		if getUsernameAuth == person.Username && getPasswordAuth == person.Password{
 			return c.Redirect(http.StatusFound, "/home")
 		}
 	}
@@ -119,13 +114,6 @@ func AuthPage(c echo.Context) error{
 // Запись информации о клиенте в базу данных
 // через енвишку для сохранности данных
 func WriteSQL(username, password string) {
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", 
-		os.Getenv("POST_USER"),
-		os.Getenv("POST_PASSWORD"),
-		os.Getenv("POST_HOST"),
-		os.Getenv("POST_PORT"),
-		os.Getenv("POST_DB"),
-	)
 	conn, err := pgx.Connect(context.Background(), connStr)
 	if err != nil{
 		log.Fatal(err)
